@@ -1,0 +1,35 @@
+{
+  "name": "dicom-svc",
+  "version": "1.0.0",
+  "description": "A microservice for DICOM data",
+  "main": "server.js",
+  "scripts": {
+    "test": "jest --verbose --detectOpenHandles --collect-coverage",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/stephenwheeler/dicom-svc.git"
+  },
+  "keywords": [
+    "DICOM",
+    "REST"
+  ],
+  "author": "Stephen Wheeler",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/stephenwheeler/dicom-svc/issues"
+  },
+  "homepage": "https://github.com/stephenwheeler/dicom-svc#readme",
+  "dependencies": {
+    "dicom-parser": "^1.8.21",
+    "express": "^4.19.2",
+    "fs": "^0.0.1-security",
+    "multer": "^1.4.5-lts.1",
+    "path": "^0.12.7"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "supertest": "^7.0.0"
+  }
+}
