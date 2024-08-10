@@ -7,18 +7,17 @@ const path = require('path');
 
 // File filter for multer
 const dicomFileFilter = (req, file, cb) => {
-    if (file.mimetype === 'application/dicom' || 
-            file.mimetype === 'application/x-dicom' || 
-            file.mimetype === 'image/x-dicom')
-    {
-        cb(null, true);
-    } else {
-        cb(new Error('Only DICOM files are allowed!'), false);
-    }
+    
+    // req.file = file;
+    cb(null, true);
+
 };
 
 // DICOM API Handler functions
 function handleDicomUpload(req, res) {
+    if (!req.file) {
+        return res.status(400).send('No file uploaded');
+    }
     const dicomId = req.file.filename;
     res.status(201).json({ id: dicomId });
   }
