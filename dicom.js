@@ -31,7 +31,7 @@ function handleDicomUpload(req, res) {
   
   async function handleDicomPng(req, res) {
     const { dicomId } = req.params;
-    const pngPath = convertDicomToPng(dicomId);
+    const pngPath = await convertDicomToPng(dicomId);
     if (!pngPath) {
         return res.status(500).send('Conversion failed');
     } else {
@@ -53,7 +53,7 @@ function extractDicomAttribute(dicomId, dicomTag) {
         return null;
     }
 
-    return dicomData.string('x' + dicomTag);    
+    return dicomData.string(dicomTag);    
 }
 
 async function convertDicomToPng(dicomId) { 
