@@ -10,7 +10,9 @@ describe('DICOM API', () => {
   test('POST /api/v1/dicom should upload a DICOM file', async () => {
     const response = await request(app)
       .post('/api/v1/dicom')
-      .attach('dicom', path.join(__dirname, './test-data/IM000001.dcm')) // You need to provide a test DICOM file
+      .attach('dicom', path.join(__dirname, './test-data/IM000001.dcm'), {
+        contentType: 'application/dicom'
+      }) 
       .expect(201);
 
     expect(response.body).toHaveProperty('id');
@@ -20,12 +22,13 @@ describe('DICOM API', () => {
   // Test getting DICOM attribute
   test('GET /api/v1/dicom/{dicom_id}/attribute/{dicom_tag} should return attribute value', async () => {
     const dicomTag = '00100010'; // Patient's Name tag
+    const dicomId = 'cac38f2ae1a1ffcf056f6faad338d9df'; // from uploads folder
     const response = await request(app)
       .get(`/api/v1/dicom/${dicomId}/attribute/${dicomTag}`)
       .expect(200);
 
     expect(response.body).toHaveProperty('tag', dicomTag);
-    expect(response.body).toHaveProperty('value');
+    expect(response.body).toHaveProperty('value', 'NAYYAR^HARSH');
   });
 
   // Test PNG conversion

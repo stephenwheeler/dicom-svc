@@ -1,6 +1,6 @@
 const express = require('express');
 const multer = require('multer');
-const { generateUniqueId, extractDicomAttribute, convertDicomToPng, dicomFileFilter } = require('./dicom');
+const { handleDicomUpload, handleDicomAttribute, handleDicomPng, dicomFileFilter } = require('./dicom');
 
 
 const app = express();

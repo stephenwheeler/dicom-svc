@@ -1,19 +1,22 @@
 const dicomParser = require('dicom-parser');
-const { generateUniqueId, extractDicomAttribute, convertDicomToPng } = require('./dicom');
 const fs = require('fs');
 
 
 // File filter for multer
 const dicomFileFilter = (req, file, cb) => {
-    if (file.mimetype !== 'application/dicom') {
-        return cb(new Error('Only DICOM files are allowed!'), false);
+    if (file.mimetype === 'application/dicom' || 
+            file.mimetype === 'application/x-dicom' || 
+            file.mimetype === 'image/x-dicom')
+    {
+        cb(null, true);
+    } else {
+        cb(new Error('Only DICOM files are allowed!'), false);
     }
-    cb(null, true);
 };
 
 // DICOM API Handler functions
 function handleDicomUpload(req, res) {
-    const dicomId = generateUniqueId();
+    const dicomId = req.file.filename;
     res.status(201).json({ id: dicomId });
   }
   
@@ -35,8 +38,20 @@ function handleDicomUpload(req, res) {
 
 
 // Helper functions (to be implemented)
-function generateUniqueId() { /* ... */ }
-function extractDicomAttribute(dicomId, dicomTag) { /* ... */ }
+function extractDicomAttribute(dicomId, dicomTag) {
+    
+    var dicomFileAsBuffer = fs.readFileSync('./uploads/' + dicomId);
+    
+    var dicomData;
+    try {
+        dicomData = dicomParser.parseDicom(dicomFileAsBuffer);
+    } catch (err) {
+        return null;
+    }
+    
+    return dicomData.string('x' + dicomTag);    
+}
+
 function convertDicomToPng(dicomId, callback) { /* ... */ }
 
 module.exports = {
