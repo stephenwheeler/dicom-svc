@@ -4,13 +4,15 @@ const path = require('path');
 const app = require('./app'); // Adjust the path as necessary
 
 describe('DICOM API', () => {
+  jest.setTimeout(30000);
+
   let dicomId;
 
   // Test DICOM file upload
   test('POST /api/v1/dicom should upload a DICOM file', async () => {
     const response = await request(app)
       .post('/api/v1/dicom')
-      .attach('dicom', path.join(__dirname, './test-data/IM000001.dcm'), {
+      .attach('dicom', path.join(__dirname, './test-data/IM000003.dcm'), {
         contentType: 'application/dicom'
       }) 
       .expect(201);
@@ -22,7 +24,7 @@ describe('DICOM API', () => {
   // Test getting DICOM attribute
   test('GET /api/v1/dicom/{dicom_id}/attribute/{dicom_tag} should return attribute value', async () => {
     const dicomTag = '00100010'; // Patient's Name tag
-    const dicomId = 'cac38f2ae1a1ffcf056f6faad338d9df'; // from uploads folder
+    const dicomId = '8bc6637b120fea9516986d19ed8f7b8d'; // from uploads folder
     const response = await request(app)
       .get(`/api/v1/dicom/${dicomId}/attribute/${dicomTag}`)
       .expect(200);

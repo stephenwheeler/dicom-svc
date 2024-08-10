@@ -5,10 +5,12 @@ const { handleDicomUpload, handleDicomAttribute, handleDicomPng, dicomFileFilter
 
 const app = express();
 
+const maxFileSizeMBs = 50;  // Limit file size
+
 const upload = multer({
     dest: 'uploads/',
     fileFilter: dicomFileFilter,
-    limits: { fileSize: 10 * 1024 * 1024 } // Limit file size to 10MB
+    limits: { fileSize: maxFileSizeMBs * 1024 * 1024 } 
   });
 
 // Upload DICOM file
