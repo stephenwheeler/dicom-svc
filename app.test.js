@@ -8,6 +8,13 @@ describe('DICOM API', () => {
 
   var uploads_cleanup = [];
 
+  test('GET /about', async () => {
+    const response = await request(app)
+      .get('/about')
+      .expect(200);
+    expect(response.body).toHaveProperty('DICOM API', 'v1');
+  });
+  
   // Test DICOM file upload
   test('POST /api/v1/dicom should upload a DICOM file', async () => {
     const response = await request(app)

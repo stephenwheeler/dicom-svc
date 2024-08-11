@@ -14,7 +14,7 @@ app.get('/about', (req, res) => {
     res.status(200).send({ 'DICOM API': 'v1' });
   });
   
-  
+
 //
 // Protected Routes
 //
@@ -24,16 +24,12 @@ app.get('/about', (req, res) => {
 app.use(auth.validateAuthToken);
   
 
-
 const maxFileSizeMBs = 50;  // Limit file size
 
 const upload = multer({
     dest: 'uploads/',
     fileFilter: dicomFileFilter,
-    filename: (req, file, cb) => {
-        const filename = file.originalname || `file-${Date.now()}`;
-        cb(null, filename);
-    },
+    
     limits: { fileSize: maxFileSizeMBs * 1024 * 1024 } 
   });
 
@@ -41,10 +37,10 @@ const upload = multer({
 app.post('/api/v1/dicom', upload.single('dicom'), handleDicomUpload);
 
 // Get DICOM attribute
-app.get('/api/v1/dicom/:dicomId/attribute/:dicomTag', handleDicomAttribute);
+app.get('/api/v1/dicom/:dicomId/attribute/:dicomTag', auth.validateDataAccess,handleDicomAttribute);
 
 // Get PNG representation
-app.get('/api/v1/dicom/:dicomId/png', handleDicomPng);
+app.get('/api/v1/dicom/:dicomId/png', auth.validateDataAccess, handleDicomPng);
 
 
 module.exports = app;
