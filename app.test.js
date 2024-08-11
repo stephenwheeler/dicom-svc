@@ -46,6 +46,14 @@ describe('DICOM API', () => {
     expect(response.body).toBeInstanceOf(Buffer);
   });
 
+  test('GET PNG for an image with no pixel data', async () => {
+    const dicomId = '727c5c9cc0b860ae6fb42dde90accada'; // Has no pixel data
+    const response = await request(app)
+      .get(`/api/v1/dicom/${dicomId}/png`)
+      .expect(500)
+    
+  });
+
   // Clean up test files after all tests
   afterAll(async () => {
     if (uploads_cleanup.length > 0) {

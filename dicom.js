@@ -29,12 +29,13 @@ function handleDicomUpload(req, res) {
   
   async function handleDicomPng(req, res) {
     const { dicomId } = req.params;
+    
     const pngPath = await convertDicomToPng(dicomId);
-    if (!pngPath) {
+    if (!pngPath || !pngPath.success) {
         return res.status(500).send('Conversion failed');
     } else {
       res.set('Content-Type', 'image/png');
-      res.status(200).sendFile(pngPath);
+      res.status(200).sendFile(pngPath.pngPath);
     };
   }
 
@@ -79,15 +80,7 @@ async function convertDicomToPng(dicomId) {
         const imageData = ctx.createImageData(width, height);
 
         // Handle different bit allocations
-        if (bitsAllocated === 8) {
-        for (let i = 0; i < pixelData.length; i++) {
-            const pixel = pixelData[i];
-            imageData.data[i * 4] = pixel;     // R
-            imageData.data[i * 4 + 1] = pixel; // G
-            imageData.data[i * 4 + 2] = pixel; // B
-            imageData.data[i * 4 + 3] = 255;   // A
-        }
-        } else if (bitsAllocated === 16) {
+        if (bitsAllocated === 16) {
             const pixelData16 = pixelRepresentation === 1 
                 ? new Int16Array(dataSet.byteArray.buffer, pixelDataElement.dataOffset, pixelDataElement.length / 2)
                 : new Uint16Array(dataSet.byteArray.buffer, pixelDataElement.dataOffset, pixelDataElement.length / 2);
@@ -108,7 +101,7 @@ async function convertDicomToPng(dicomId) {
                 imageData.data[i * 4 + 3] = 255;   // A
             }
         } else {
-            throw new Error(`Unsupported bits allocated: ${bitsAllocated}`);
+            return { success: false, error: `Unsupported bits allocated: ${bitsAllocated}` };;
         }
 
         ctx.putImageData(imageData, 0, 0);
@@ -122,12 +115,12 @@ async function convertDicomToPng(dicomId) {
         const outputPngPath = dataStore.savePNG(dicomId, pngBuffer);
 
         console.log('Conversion completed successfully');
-        return outputPngPath;
+        return { success: true, pngPath: outputPngPath }; 
 
     } catch (error) {
 
         console.error('Error converting DICOM to PNG:', error);
-        return new Error('Error converting DICOM to PNG: ' + error);
+        return { success: false, error: error };
     
     }
         
