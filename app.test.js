@@ -1,5 +1,5 @@
 const request = require('supertest');
-const fs = require('fs').promises;
+const dataStore = require('./dataStore');
 const path = require('path');
 const app = require('./app'); // Adjust the path as necessary
 
@@ -50,7 +50,7 @@ describe('DICOM API', () => {
   afterAll(async () => {
     if (uploads_cleanup.length > 0) {
       for (const dicomId of uploads_cleanup) {
-        await fs.unlink(path.join(__dirname, 'uploads', dicomId));
+        await dataStore.deleteDicomFile(dicomId);
       }
     }
   });

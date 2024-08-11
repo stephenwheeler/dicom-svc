@@ -1,8 +1,7 @@
 const dicomParser = require('dicom-parser');
 const { createCanvas } = require('canvas');
 const sharp = require('sharp');
-const fs = require('fs');
-const path = require('path');
+const dataStore = require('./dataStore');
 
 
 // File filter for multer
@@ -43,7 +42,7 @@ function handleDicomUpload(req, res) {
 // Helper functions (to be implemented)
 function extractDicomAttribute(dicomId, dicomTag) {
     
-    var dicomFileAsBuffer = fs.readFileSync('./uploads/' + dicomId);
+    var dicomFileAsBuffer = dataStore.getDicomFile(dicomId);
     
     var dicomData;
     try {
@@ -57,11 +56,9 @@ function extractDicomAttribute(dicomId, dicomTag) {
 
 async function convertDicomToPng(dicomId) { 
     try {
-        const dicomFilePath = './uploads/' + dicomId;
-        // const dicomFileAsBuffer = await fs.readFile('./uploads/' + dicomId, null);
-        
+                
          // Read the DICOM file
-        const dicomFileBuffer = fs.readFileSync(dicomFilePath);
+        const dicomFileBuffer = dataStore.getDicomFile(dicomId);
 
         // Parse the DICOM data
         const dataSet = dicomParser.parseDicom(dicomFileBuffer);
@@ -122,8 +119,7 @@ async function convertDicomToPng(dicomId) {
         .toBuffer();
 
         // Save the PNG file
-        const outputPngPath = path.join(__dirname, '/png/' + dicomId + '.png');
-        fs.writeFileSync(outputPngPath, pngBuffer);
+        const outputPngPath = dataStore.savePNG(dicomId, pngBuffer);
 
         console.log('Conversion completed successfully');
         return outputPngPath;

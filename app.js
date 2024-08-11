@@ -14,6 +14,7 @@ app.get('/about', (req, res) => {
     res.status(200).send({ 'DICOM API': 'v1' });
   });
   
+  
 //
 // Protected Routes
 //
