@@ -32,7 +32,14 @@ function handleDicomUpload(req, res) {
     
     const pngPath = await convertDicomToPng(dicomId);
     if (!pngPath || !pngPath.success) {
-        return res.status(500).send('Conversion failed');
+        switch (pngPath.code) {
+            case 'bits':
+                return res.status(415).send(pngPath.error);
+            case 'no_pixel_data':
+                return res.status(422).send(pngPath.error);
+            default:
+                return res.status(500).send(pngPath.error);
+        }
     } else {
       res.set('Content-Type', 'image/png');
       res.status(200).sendFile(pngPath.pngPath);
@@ -43,10 +50,11 @@ function handleDicomUpload(req, res) {
 // Helper functions (to be implemented)
 function extractDicomAttribute(dicomId, dicomTag) {
     
-    var dicomFileAsBuffer = dataStore.getDicomFile(dicomId);
-    
+    var dicomFileAsBuffer;
     var dicomData;
+
     try {
+        dicomFileAsBuffer = dataStore.getDicomFile(dicomId);
         dicomData = dicomParser.parseDicom(dicomFileAsBuffer);
     } catch (err) {
         return null;
@@ -72,7 +80,9 @@ async function convertDicomToPng(dicomId) {
 
         // Get pixel data
         const pixelDataElement = dataSet.elements.x7fe00010;
-        const pixelData = new Uint8Array(dataSet.byteArray.buffer, pixelDataElement.dataOffset, pixelDataElement.length);
+        if (!pixelDataElement) {
+            return { success: false, code: 'no_pixel_data', error: 'No pixel data found in tag 0x7fe00010' };
+        }
 
         // Create canvas and draw image
         const canvas = createCanvas(width, height);
@@ -95,13 +105,14 @@ async function convertDicomToPng(dicomId) {
             for (let i = 0; i < pixelData16.length; i++) {
                 // Normalize to 0-255
                 const pixel = Math.round(((pixelData16[i] - min) / (max - min)) * 255);
+                // Convert to grayscale image
                 imageData.data[i * 4] = pixel;     // R
                 imageData.data[i * 4 + 1] = pixel; // G
                 imageData.data[i * 4 + 2] = pixel; // B
                 imageData.data[i * 4 + 3] = 255;   // A
             }
         } else {
-            return { success: false, error: `Unsupported bits allocated: ${bitsAllocated}` };;
+            return { success: false, code: 'bits', error: `Unsupported bits allocated: ${bitsAllocated}` };;
         }
 
         ctx.putImageData(imageData, 0, 0);
