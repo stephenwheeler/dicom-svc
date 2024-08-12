@@ -5,7 +5,9 @@
   "main": "server.js",
   "scripts": {
     "test": "jest --verbose --detectOpenHandles --collect-coverage",
-    "start": "node server.js"
+    "start": "node server.js",
+    "docker:build": "docker build -t dicom-svc .",
+    "docker:run": "docker run --rm -p 3000:3000 dicom-svc"
   },
   "repository": {
     "type": "git",
@@ -27,6 +29,7 @@
     "express": "^4.19.2",
     "fs": "^0.0.1-security",
     "multer": "^1.4.5-lts.1",
+    "node-gyp": "^10.2.0",
     "path": "^0.12.7",
     "sharp": "^0.33.4"
   },
